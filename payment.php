@@ -19,8 +19,11 @@ if ($order_id) {
     $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND user_id = ?");
     $stmt->execute([$order_id, $_SESSION['user_id']]);
     $order = $stmt->fetch();
-    if ($order) {
+    if ($order && $order['final_total'] > 0) {
         $total_amount = $order['final_total'];
+    } elseif ($order && $order['final_total'] == 0) {
+        $_SESSION['error'] = 'Order price is not yet updated by admin.';
+        redirect('orders.php');
     }
 } elseif ($product_id) {
     $stmt = $pdo->prepare("SELECT price FROM products WHERE id = ?");
